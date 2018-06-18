@@ -1,4 +1,4 @@
-var apiUrl = "http://api.jok.fr/"; //"http://localhost:2525"; //JoK.fr API Url to query
+var apiUrl = "http://api.jok.fr"; //"http://localhost:2525"; //JoK.fr API Url to query
 var server; //contains your server id
 
 /*****************************
