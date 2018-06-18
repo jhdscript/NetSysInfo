@@ -1,0 +1,70 @@
+/* Show it is fixed to the top */
+
+body {
+    /*min-height: 75rem;*/
+    padding-top: 4.5rem;
+}
+
+.form-server {
+  width: 100%;
+  max-width: 400px;
+  padding: 15px;
+  margin: auto;
+}
+
+.form-server .form-control {
+  position: relative;
+  box-sizing: border-box;
+  height: auto;
+  padding: 10px;
+  font-size: 16px;
+}
+.form-server .form-control:focus {
+  z-index: 2;
+}
+.form-server input[type="text"] {
+  margin-bottom: -1px;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.width100 {
+    min-width: 100px;
+}
+
+.width150 {
+    min-width: 150px;
+}
+
+.right {
+    float: right;
+}
+
+.tooltipinfo {
+    cursor: pointer;
+}
+
+.color1 {
+    color: darkgreen;
+}
+
+.color2 {
+    color: darkcyan;
+}
+
+.color3 {
+    color: darkorange;
+}
+
+.tooltip-inner {
+    padding-left: 0;
+    padding-right: 0;
+    text-align: left;
+    min-width: 400px;
+}
+
+#jstreeHardware {
+    overflow: auto;
+    border: 1px solid silver;
+    min-height: 100px;
+}

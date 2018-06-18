@@ -1,0 +1,689 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="favicon.ico">
+    <title>JoK.fr NetSysInfo Dashboard</title>
+    <!-- Bootstrap core CSS -->
+    <link href="css/bootstrap.css" rel="stylesheet">
+    <!-- DateRangePicker CSS -->
+    <link rel="stylesheet" type="text/css" media="all" href="css/daterangepicker.css" />
+    <!-- FontAwesome CSS -->
+    <link rel="stylesheet" type="text/css" media="all" href="css/fontawesome.css" />
+    <!-- jsTree CSS -->
+    <link rel="stylesheet" type="text/css" media="all" href="css/jstree.css" />
+    <!-- Custom styles for this template -->
+    <link href="netsysinfo.css" rel="stylesheet">
+</head>
+
+<body class="mb-3">
+    <div id="selectserver" class="d-none">
+        <h1 class="text-center font-weight-bold">JoK.fr NetSysInfo</h1>
+        <form class="form-server">
+            <h4 class="mb-3 font-weight-normal">Provide your Server Id</h4>
+            <label for="inputEmail" class="sr-only">Server Id</label>
+            <input type="text" id="inputServer" class="form-control" placeholder="Enter your server id" required autofocus>
+            <button id="btServer" class="btn btn-lg btn-primary btn-block" type="button">Run Dashboard</button>
+        </form>
+    </div>
+    <nav id="menu" class="navbar navbar-expand-md navbar-dark fixed-top bg-dark d-none">
+        <a id="serverName" class="navbar-brand" href="#">Server</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a id="menuSummary" class="menuLink nav-link active" href="#">Summary</a>
+                </li>
+                <li class="nav-item">
+                    <a id="menuSystem" class="menuLink nav-link" href="#">System</a>
+                </li>
+                <li class="nav-item">
+                    <a id="menuDisk" class="menuLink nav-link" href="#">Disk</a>
+                </li>
+                <li class="nav-item">
+                    <a id="menuNetwork" class="menuLink nav-link" href="#">Network</a>
+                </li>
+                <li class="nav-item">
+                    <a id="menuProtocol" class="menuLink nav-link" href="#">Protocol</a>
+                </li>
+                <li class="nav-item">
+                    <a id="menuHardware" class="menuLink nav-link" href="#">Hardware</a>
+                </li>
+            </ul>
+            <input type="text" class="form-control mr-sm-2 d-none" style="width:335px" id="calendar" value="">
+            <!--
+        <form class="form-inline mt-2 mt-md-0">
+          <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
+          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+        </form>
+        -->
+        </div>
+    </nav>
+    <main id="main" role="main" class="container-fluid d-none">
+        <div id="error" class="alert alert-danger d-none" role="alert"></div>
+        <div id="containerSummary" class="containernsi">
+            <div class="row summary">
+                <div class="col-md-6 mt-3">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white">
+                            Informations
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-sm table-striped m-0">
+                                    <tbody>
+                                        <tr>
+                                            <td>Computer Name</td>
+                                            <td id="computerName"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Computer Alias</td>
+                                            <td id="computerAlias"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Hostname</td>
+                                            <td id="hostName"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Local Ip</td>
+                                            <td id="ipLocal"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Os Fullname</td>
+                                            <td id="osFullName"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Os Informations</td>
+                                            <td><span id="osPlatform"></span> <span id="osVersion"></span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mt-3">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white">
+                            Locales
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-sm table-striped m-0">
+                                    <tbody>
+                                        <tr>
+                                            <td>Last Update</td>
+                                            <td id="timeUpdate"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Uptime</td>
+                                            <td id="uptime"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Boot Time</td>
+                                            <td id="timeBoot"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>GMT Time</td>
+                                            <td id="timeGmt"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Local Time</td>
+                                            <td id="timeLocal"></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Culture</td>
+                                            <td id="uiCulture"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row summary">
+                <div class="col-md mt-3">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white">
+                            Memory
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-sm table-striped m-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Type</th>
+                                            <th>Usage</th>
+                                            <th class="text-right">Free</th>
+                                            <th class="text-right">Used</th>
+                                            <th class="text-right">Size</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td width="100%">Physical Memory</td>
+                                            <td class="width150">
+                                                <div class="progress m-1">
+                                                    <div id="physicalMemoryPercent" class="progress-bar bg-info" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                                </div>
+                                            </td>
+                                            <td id="physicalMemoryFree" class="text-right width100"></td>
+                                            <td id="physicalMemoryUsed" class="text-right width100"></td>
+                                            <td id="physicalMemoryTotal" class="text-right width100"></td>
+                                        </tr>
+                                        <tr>
+                                            <td width="100%">Virtual Memory</td>
+                                            <td class="width150">
+                                                <div class="progress m-1">
+                                                    <div id="virtualMemoryPercent" class="progress-bar bg-info" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                                </div>
+                                            </td>
+                                            <td id="virtualMemoryFree" class="text-right"></td>
+                                            <td id="virtualMemoryUsed" class="text-right"></td>
+                                            <td id="virtualMemoryTotal" class="text-right"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row summary">
+                <div class="col-md mt-3">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white">
+                            Interfaces
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-sm table-striped m-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th class="text-center">Type</th>
+                                            <th class="text-right">Speed</th>
+                                            <th class="text-right">Bytes Sent</th>
+                                            <th class="text-right">Bytes Received</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="interfaces">
+                                        <!--
+                      <tr>
+                        <td width="100%">Software Loopback Interface 1</td>
+                        <td class="text-center">Loopback</td>
+                        <td class="text-right width100">100 Mb/s</td>
+                        <td class="text-right width100">0</td>
+                        <td class="text-right width100">0</td>
+                      </tr>
+                      -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row summary">
+                <div class="col-md mt-3">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white">
+                            Logical Drives
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-sm table-striped m-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Label</th>
+                                            <th class="text-center">Format</th>
+                                            <th class="text-center">Type</th>
+                                            <th>Usage</th>
+                                            <th class="text-right">Free</th>
+                                            <th class="text-right">Used</th>
+                                            <th class="text-right">Size</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="drivesLogical">
+                                        <!--
+                      <tr>
+                        <td>C:\</td>
+                        <td width="100%">My Hard Drive</td>
+                        <td class="text-center">NTFS</td>
+                        <td class="text-center">Fixed</td>
+                        <td class="width150">
+                          <div class="progress m-1">
+                            <div id="physicalMemoryPercent" class="progress-bar bg-info" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                          </div>
+                        </td>
+                        <td class="text-right width100">free</td>
+                        <td class="text-right width100">used</td>
+                        <td class="text-right width100">total</td>
+                      </tr>
+                      -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row summary">
+                <div class="col-md mt-3">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white">
+                            Physical Disks
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-sm table-striped m-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Model</th>
+                                            <th class="text-center">Type</th>
+                                            <th class="text-center">Status</th>
+                                            <th class="text-right">Size</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="drivesPhysical">
+                                        <!--
+                      <tr>
+                        <td width="100%">Kingston DataTraveler 3.0 USB Device</td>
+                        <td class="text-center">USB</td>
+                        <td class="text-center">Ok</td>
+                        <td class="text-right width100">78Gb</td>
+                      </tr>
+                      -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row summary">
+                <div class="col-md mt-3">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white">
+                            Processes
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-sm table-striped m-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Name (pid)</th>
+                                            <th class="text-center">Priority</th>
+                                            <th class="text-right">CPU</th>
+                                            <th class="text-right">WorkingSet</th>
+                                            <th class="text-right">Proc. Time <i data-toggle="tooltip" class="fa fa-info-circle m-1 right tooltipinfo" data-html="true" title="<ul><li><strong class='color1'>Processor Time User</strong></li><li><strong class='color2'>Processor Time Priviledged</strong></li><li><strong class='color3'>Processor Time Total</strong></li></ul>"></i></th>
+                                            <th class="text-right">Memory <i data-toggle="tooltip" class="fa fa-info-circle m-1 right tooltipinfo" data-html="true" title="<ul><li><strong class='color1'>Memory Private</strong></li><li><strong class='color2'>Memory Virtual</strong></li><li><strong class='color3'>Memory Paged</strong></li></ul>"></i></th>
+                                            <th class="text-right">Peak Mem. <i data-toggle="tooltip" class="fa fa-info-circle m-1 right tooltipinfo" data-html="true" title="<ul><li><strong class='color1'>Peak Memory WorkingSet</strong></li><li><strong class='color2'>Peak Memory Virtual</strong></li><li><strong class='color3'>Peak Memory Paged</strong></li></ul>"></i></th>
+                                            <th class="text-right">System Mem.<i data-toggle="tooltip" class="fa fa-info-circle m-1 right tooltipinfo" data-html="true" title="<ul><li><strong class='color1'>System Memory Paged</strong></li><li><strong class='color2'>System Memory Non Paged</strong></li></ul>"></i></th>
+                                            <th class="text-right">Threads</th>
+                                            <th class="text-right">Handles</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="processes"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="containerSystem" class="containernsi d-none">
+            <div class="row system">
+                <div class="col-md-6 mt-3">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white">
+                            Processor
+                            <i data-toggle="tooltip" class="fa fa-info-circle m-1 right tooltipinfo" data-html="true" title="<ul><li><strong>% Processor Time</strong> is the percentage of elapsed time that the processor spends to execute a non-Idle thread. It is calculated by measuring the percentage of time that the processor spends executing the idle thread and then subtracting that value from 100%.</li></ul>"></i>
+                        </div>
+                        <div class="card-body p-0">
+                            <div id="chartcpu"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mt-3">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white">
+                            Memory
+                            <i data-toggle="tooltip" class="fa fa-info-circle m-1 right tooltipinfo" data-html="true" title="<ul><li><strong>% Committed Bytes</strong> In Use is the ratio of Memory\\Committed Bytes to the Memory\\Commit Limit. Committed memory is the physical memory in use for which space has been reserved in the paging file should it need to be written to disk. The commit limit is determined by the size of the paging file.  If the paging file is enlarged, the commit limit increases, and the ratio is reduced.</li></ul>"></i>
+                        </div>
+                        <div class="card-body p-0">
+                            <div id="chartmemory"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row system">
+                <div class="col-md-6 mt-3">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white">
+                            Calls
+                            <i data-toggle="tooltip" class="fa fa-info-circle m-1 right tooltipinfo" data-html="true" title="<ul><li><strong>System Calls/sec</strong> is the combined rate of calls to operating system service routines by all processes running on the computer. These routines perform all of the basic scheduling and synchronization of activities on the computer, and provide access to non-graphic devices, memory management, and name space management.</li></ul>"></i>
+                        </div>
+                        <div class="card-body p-0">
+                            <div id="chartsystemcalls"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mt-3">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white">
+                            Exception
+                            <i data-toggle="tooltip" class="fa fa-info-circle m-1 right tooltipinfo" data-html="true" title="<ul><li><strong>Exception Dispatches/sec</strong> is the rate, in incidents per second, at which exceptions were dispatched by the system.</li></ul>"></i>
+                        </div>
+                        <div class="card-body p-0">
+                            <div id="chartsystemexception"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row system">
+                <div class="col-md-6 mt-3">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white">
+                            Processes
+                            <i data-toggle="tooltip" class="fa fa-info-circle m-1 right tooltipinfo" data-html="true" title="<ul><li><strong>Processes</strong> is the number of processes in the computer at the time of data collection. This is an instantaneous count, not an average over the time interval.  Each process represents the running of a program.</li></ul>"></i>
+                        </div>
+                        <div class="card-body p-0">
+                            <div id="chartsystemprocesses"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mt-3">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white">
+                            Threads
+                            <i data-toggle="tooltip" class="fa fa-info-circle m-1 right tooltipinfo" data-html="true" title="<ul><li><strong>Threads</strong> is the number of threads in the computer at the time of data collection. This is an instantaneous count, not an average over the time interval. A thread is the basic executable entity that can execute instructions in a processor.</li></ul>"></i>
+                        </div>
+                        <div class="card-body p-0">
+                            <div id="chartsystemthreads"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="containerDisk" class="containernsi d-none">
+            <div class="row drive">
+                <div class="col-md-6 mt-3">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white">
+                            Physical Disk Operations
+                            <i data-toggle="tooltip" class="fa fa-info-circle m-1 right tooltipinfo" data-html="true" title="<ul><li><strong>Disk Reads/sec</strong> is the rate of read operations on the disk.</li><li><strong>Disk Writes/sec</strong> is the rate of write operations on the disk.</li><li><strong>Disk Transfers/sec</strong> is the rate of read and write operations on the disk.</li></ul>"></i>
+                        </div>
+                        <div class="card-body p-0">
+                            <div id="chartdiskoperations"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mt-3">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white">
+                            Physical Disk Transfer
+                            <i data-toggle="tooltip" class="fa fa-info-circle m-1 right tooltipinfo" data-html="true" title="<ul><li><strong>Disk Read Bytes/sec</strong> is the rate at which bytes are transferred from the disk during read operations.</li><li><strong>Disk Write Bytes/sec</strong> is rate at which bytes are transferred to the disk during write operations.</li><li><strong>Disk Bytes/sec</strong> is the rate bytes are transferred to or from the disk during write or read operations.</li></ul>"></i>
+                        </div>
+                        <div class="card-body p-0">
+                            <div id="chartdisktransfer"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row drive">
+                <div class="col-md-6 mt-3">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white">
+                            Physical Disk Time
+                            <i data-toggle="tooltip" class="fa fa-info-circle m-1 right tooltipinfo" data-html="true" title="<ul><li><strong>% Disk Read Time</strong> is the percentage of elapsed time that the selected disk drive was busy servicing read requests.</li><li><strong>% Disk Write Time</strong> is the percentage of elapsed time that the selected disk drive was busy servicing write requests.</li><li><strong>% Idle Time</strong> reports the percentage of time during the sample interval that the disk was idle.</li></ul>"></i>
+                        </div>
+                        <div class="card-body p-0">
+                            <div id="chartdisktime"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mt-3">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white">
+                            Physical Disk Queue Length
+                            <i data-toggle="tooltip" class="fa fa-info-circle m-1 right tooltipinfo" data-html="true" title="<ul><li><strong>Avg. Disk Read Queue Length</strong> is the average number of read requests that were queued for the selected disk during the sample interval.</li><li><strong>Avg. Disk Write Queue Length</strong> is the average number of write requests that were queued for the selected disk during the sample interval.</li><li><strong>Avg. Disk Queue Length</strong> is the average number of both read and write requests that were queued for the selected disk during the sample interval.</li></ul>"></i>
+                        </div>
+                        <div class="card-body p-0">
+                            <div id="chartdiskqueuelength"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="containerNetwork" class="containernsi d-none">
+            <div class="row network">
+                <div class="col-md-6 mt-3">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white">
+                            IPv4 Datagrams
+                            <i data-toggle="tooltip" class="fa fa-info-circle m-1 right tooltipinfo" data-html="true" title="<ul><li><strong>Datagrams Sent/sec</strong> is the rate, in incidents per second, at which IP datagrams were supplied for transmission by local IP user-protocols (including ICMP).</li><li><strong>Datagrams Received/sec</strong> is the rate, in incidents per second, at which IP datagrams are received from the interfaces, including those in error. Datagrams Received/sec is a subset of Datagrams/sec.</li><li><strong>Datagrams Forwarded/sec</strong> is the rate, in incidents per second, at which attemps were made to find routes to forward input datagrams their final destination, because the local server was not the final IP destination.</li><li><strong>Datagrams/sec</strong> is the rate, in incidents per second, at which IP datagrams were received from or sent to the interfaces, including those in error. Forwarded datagrams are not included in this rate.</li></ul>"></i>
+                        </div>
+                        <div class="card-body p-0">
+                            <div id="chartnetworkipv4datagrams"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mt-3">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white">
+                            IPv6 Datagrams
+                            <i data-toggle="tooltip" class="fa fa-info-circle m-1 right tooltipinfo" data-html="true" title="<ul><li><strong>Datagrams Sent/sec</strong> is the rate, in incidents per second, at which IP datagrams were supplied for transmission by local IP user-protocols (including ICMP).</li><li><strong>Datagrams Received/sec</strong> is the rate, in incidents per second, at which IP datagrams are received from the interfaces, including those in error. Datagrams Received/sec is a subset of Datagrams/sec.</li><li><strong>Datagrams Forwarded/sec</strong> is the rate, in incidents per second, at which attemps were made to find routes to forward input datagrams their final destination, because the local server was not the final IP destination.</li><li><strong>Datagrams/sec</strong> is the rate, in incidents per second, at which IP datagrams were received from or sent to the interfaces, including those in error. Forwarded datagrams are not included in this rate.</li></ul>"></i>
+                        </div>
+                        <div class="card-body p-0">
+                            <div id="chartnetworkipv6datagrams"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row network">
+                <div class="col-md-6 mt-3">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white">
+                            IPv4 Fragments
+                            <i data-toggle="tooltip" class="fa fa-info-circle m-1 right tooltipinfo" data-html="true" title="<ul><li><strong>Fragments Created/sec</strong> is the rate, in incidents per second, at which IP datagram fragments were generated as a result of fragmentation.</li><li><strong>Fragments Re-assembled/sec</strong> is the rate, in incidents per second, at which IP fragments were successfully reassembled.</li><li><strong>Fragments Received/sec</strong> is the rate, in incidents per second, at which IP fragments that need to be reassembled at this entity are received.</li></ul>"></i>
+                        </div>
+                        <div class="card-body p-0">
+                            <div id="chartnetworkipv4fragments"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mt-3">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white">
+                            IPv6 Fragments
+                            <i data-toggle="tooltip" class="fa fa-info-circle m-1 right tooltipinfo" data-html="true" title="<ul><li><strong>Fragments Created/sec</strong> is the rate, in incidents per second, at which IP datagram fragments were generated as a result of fragmentation.</li><li><strong>Fragments Re-assembled/sec</strong> is the rate, in incidents per second, at which IP fragments were successfully reassembled.</li><li><strong>Fragments Received/sec</strong> is the rate, in incidents per second, at which IP fragments that need to be reassembled at this entity are received.</li></ul>"></i>
+                        </div>
+                        <div class="card-body p-0">
+                            <div id="chartnetworkipv6fragments"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="containerProtocol" class="containernsi d-none">
+            <div class="row tcp">
+                <div class="col-md-4 mt-3">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white">
+                            TCPv4 Connections
+                            <i data-toggle="tooltip" class="fa fa-info-circle m-1 right tooltipinfo" data-html="true" title="<ul><li><strong>Connections Established</strong> is the number of TCP connections for which the current state is either ESTABLISHED or CLOSE-WAIT.</li><li><strong>Connections Reset</strong> is the number of times TCP connections have made a direct transition to the CLOSED state from either the ESTABLISHED state or the CLOSE-WAIT state.</li><li><strong>Connection Failures</strong> is the number of times TCP connections have made a direct transition to the CLOSED state from the SYN-SENT state or the SYN-RCVD state, plus the number of times TCP connections have made a direct transition to the LISTEN state from the SYN-RCVD state.</li></ul>"></i>
+                        </div>
+                        <div class="card-body p-0">
+                            <div id="charttcpv4conn"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mt-3">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white">
+                            TCPv6 Connections
+                            <i data-toggle="tooltip" class="fa fa-info-circle m-1 right tooltipinfo" data-html="true" title="<ul><li><strong>Connections Established</strong> is the number of TCP connections for which the current state is either ESTABLISHED or CLOSE-WAIT.</li><li><strong>Connections Reset</strong> is the number of times TCP connections have made a direct transition to the CLOSED state from either the ESTABLISHED state or the CLOSE-WAIT state.</li><li><strong>Connection Failures</strong> is the number of times TCP connections have made a direct transition to the CLOSED state from the SYN-SENT state or the SYN-RCVD state, plus the number of times TCP connections have made a direct transition to the LISTEN state from the SYN-RCVD state.</li></ul>"></i>
+                        </div>
+                        <div class="card-body p-0">
+                            <div id="charttcpv6conn"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mt-3">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white">
+                            TCP Cumulative Connections
+                            <i data-toggle="tooltip" class="fa fa-info-circle m-1 right tooltipinfo" data-html="true" title="<ul><li><strong>Connections Active</strong> is the number of times TCP connections have made a direct transition to the SYN-SENT state from the CLOSED state. In other words, it shows a number of connections which are initiated by the local computer.</li><li><strong>Connections Passive</strong> is the number of times TCP connections have made a direct transition to the SYN-RCVD state from the LISTEN state. In other words, it shows a number of connections to the local computer, which are initiated by remote computers</li></ul>"></i>
+                        </div>
+                        <div class="card-body p-0">
+                            <div id="charttcpconncumulative"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row tcp">
+                <div class="col-md-6 mt-3">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white">
+                            TCPv4 Segments
+                            <i data-toggle="tooltip" class="fa fa-info-circle m-1 right tooltipinfo" data-html="true" title="<ul><li><strong>Segments Sent/sec</strong> is the rate at which segments are sent, including those on current connections, but excluding those containing only retransmitted bytes.</li><li><strong>Segments Received/sec</strong> is the rate at which segments are received, including those received in error.  This count includes segments received on currently established connections.</li><li><strong>Segments Retransmitted/sec</strong> is the rate at which segments are retransmitted, that is, segments transmitted containing one or more previously transmitted bytes.</li><li><strong>Segments/sec</strong> is the rate at which TCP segments are sent or received using the TCP protocol.</li></ul>"></i>
+                        </div>
+                        <div class="card-body p-0">
+                            <div id="charttcpv4segments"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mt-3">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white">
+                            TCPv6 Segments
+                            <i data-toggle="tooltip" class="fa fa-info-circle m-1 right tooltipinfo" data-html="true" title="<ul><li><strong>Segments Sent/sec</strong> is the rate at which segments are sent, including those on current connections, but excluding those containing only retransmitted bytes.</li><li><strong>Segments Received/sec</strong> is the rate at which segments are received, including those received in error.  This count includes segments received on currently established connections.</li><li><strong>Segments Retransmitted/sec</strong> is the rate at which segments are retransmitted, that is, segments transmitted containing one or more previously transmitted bytes.</li><li><strong>Segments/sec</strong> is the rate at which TCP segments are sent or received using the TCP protocol.</li></ul>"></i>
+                        </div>
+                        <div class="card-body p-0">
+                            <div id="charttcpv6segments"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row udp">
+                <div class="col-md-4 mt-3">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white">
+                            UDPv4 Datagrams
+                            <i data-toggle="tooltip" class="fa fa-info-circle m-1 right tooltipinfo" data-html="true" title="<ul><li><strong>Datagrams Sent/sec</strong> is the rate at which UDP datagrams are sent from the entity.</li><li><strong>Datagrams Received/sec</strong> is the rate at which UDP datagrams are delivered to UDP users.</li><li><strong>Datagrams No Port/sec</strong> is the rate of received UDP datagrams for which there was no application at the destination port.</li><li><strong>Datagrams/sec</strong> is the rate at which UDP datagrams are sent or received by the entity.</li></ul>"></i>
+                        </div>
+                        <div class="card-body p-0">
+                            <div id="chartudpv4datagrams"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mt-3">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white">
+                            UDPv6 Datagrams
+                            <i data-toggle="tooltip" class="fa fa-info-circle m-1 right tooltipinfo" data-html="true" title="<ul><li><strong>Datagrams Sent/sec</strong> is the rate at which UDP datagrams are sent from the entity.</li><li><strong>Datagrams Received/sec</strong> is the rate at which UDP datagrams are delivered to UDP users.</li><li><strong>Datagrams No Port/sec</strong> is the rate of received UDP datagrams for which there was no application at the destination port.</li><li><strong>Datagrams/sec</strong> is the rate at which UDP datagrams are sent or received by the entity.</li></ul>"></i>
+                        </div>
+                        <div class="card-body p-0">
+                            <div id="chartudpv6datagrams"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mt-3">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white">
+                            UDP Datagrams Received Errors
+                            <i data-toggle="tooltip" class="fa fa-info-circle m-1 right tooltipinfo" data-html="true" title="<ul><li><strong>Datagrams Received Errors</strong> is the number of received UDP datagrams that could not be delivered for reasons other than the lack of an application at the destination port.</li></ul>"></i>
+                        </div>
+                        <div class="card-body p-0">
+                            <div id="chartudpdatagramsreceivederrors"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row icmp">
+                <div class="col-md-4 mt-3">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white">
+                            ICMPv4 Messages
+                            <i data-toggle="tooltip" class="fa fa-info-circle m-1 right tooltipinfo" data-html="true" title="<ul><li><strong>Messages Sent/sec</strong> is the rate, in incidents per second, at which the server attempted to send. The rate includes those messages sent in error.</li><li><strong>Messages Received/sec</strong> is the rate, in incidents per second at which ICMP messages were received. The rate includes messages received in error.</li><li><strong>Messages/sec</strong> is the total rate, in incidents per second, at which ICMP messages were sent and received by the entity. The rate includes messages received or sent in error.</li></ul>"></i>
+                        </div>
+                        <div class="card-body p-0">
+                            <div id="charticmpv4messages"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mt-3">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white">
+                            ICMPv6 Messages
+                            <i data-toggle="tooltip" class="fa fa-info-circle m-1 right tooltipinfo" data-html="true" title="<ul><li><strong>Messages Sent/sec</strong> is the rate, in incidents per second, at which the server attempted to send. The rate includes those messages sent in error.</li><li><strong>Messages Received/sec</strong> is the rate, in incidents per second at which ICMP messages were received. The rate includes messages received in error.</li><li><strong>Messages/sec</strong> is the total rate, in incidents per second, at which ICMP messages were sent and received by the entity. The rate includes messages received or sent in error.</li></ul>"></i>
+                        </div>
+                        <div class="card-body p-0">
+                            <div id="charticmpv6messages"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mt-3">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white">
+                            ICMP Errors
+                            <i data-toggle="tooltip" class="fa fa-info-circle m-1 right tooltipinfo" title="<ul><li><strong>Messages Outbound Errors</strong> is the number of ICMP messages that were not send due to problems within ICMP, such as lack of buffers.  This value does not include errors discovered outside the ICMP layer, such as those recording the failure of IP to route the resultant datagram.  In some implementations, none of the error types are included in the value of this counter.</li><li><strong>Messages Received Errors</strong> is the number of ICMP messages that the entity received but had errors, such as bad ICMP checksums, bad length, etc.</li></ul>"></i>
+                        </div>
+                        <div class="card-body p-0">
+                            <div id="charticmperrors"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="containerHardware" class="containernsi d-none">
+            <div class="row hardware">
+                <div class="col-md-4 mt-3">
+                    <div id="jstreeHardware"></div>
+                </div>
+                <div class="col-md mt-3">
+                    <div class="card">
+                        <div id="hardwaretitle" class="card-header bg-dark text-white">
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-sm table-striped m-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Propertie</th>
+                                            <th>Value</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="hardwareprops"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+            <p class="mt-1 mb-1 text-muted text-center" style="font-size:10px;">&copy; JoK.fr 2018</p>
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="js/jquery.js"></script>
+    <script src="js/popper.js"></script>
+    <script src="js/bootstrap.js"></script>
+    <script src="js/moment.js"></script>
+    <script src="js/daterangepicker.js"></script>
+    <script src="js/highstock.js"></script>
+    <script src="js/jstree.js"></script>
+    <script src="netsysinfo.js"></script>
+</body>
+
+</html>
