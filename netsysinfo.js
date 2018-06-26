@@ -1,5 +1,12 @@
+var debug = false;
+
 var apiUrl = "http://api.jok.fr"; //"http://localhost:2525"; //JoK.fr API Url to query
 var server; //contains your server id
+
+if (debug === true) {
+  apiUrl = "http://localhost:2525";
+  server = "35df-b60f-5e81-633c-0340-7d7d-db5e-fd54"; //contains your server id
+}
 
 /*****************************
  * METRICS SYSTEM            *
@@ -27,7 +34,7 @@ var metricTcpV4SegmentsTotal = "tcpv4segments";
 var metricTcpV4SegmentsSent = "tcpv4segmentssent";
 var metricTcpV4SegmentsReceived = "tcpv4segmentsreceived";
 var metricTcpV4SegmentsRetransmitted = "tcpv4segmentsretransmitted";
-var metricsTcpV4Conn = [metricTcpV4ConnEstablished, metricTcpV4ConnReset, metricTcpV4ConnFailures];
+var metricsTcpV4Conn = [metricTcpV4ConnEstablished, metricTcpV4ConnReset];
 var metricsTcpV4Segments = [metricTcpV4SegmentsSent, metricTcpV4SegmentsReceived, metricTcpV4SegmentsRetransmitted, metricTcpV4SegmentsTotal];
 
 var metricTcpV6ConnEstablished = "tcpv6connestablished";
@@ -39,10 +46,10 @@ var metricTcpV6SegmentsTotal = "tcpv6segments";
 var metricTcpV6SegmentsSent = "tcpv6segmentssent";
 var metricTcpV6SegmentsReceived = "tcpv6segmentsreceived";
 var metricTcpV6SegmentsRetransmitted = "tcpv6segmentsretransmitted";
-var metricsTcpV6Conn = [metricTcpV6ConnEstablished, metricTcpV6ConnReset, metricTcpV6ConnFailures];
+var metricsTcpV6Conn = [metricTcpV6ConnEstablished, metricTcpV6ConnReset];
 var metricsTcpV6Segments = [metricTcpV6SegmentsSent, metricTcpV6SegmentsReceived, metricTcpV6SegmentsRetransmitted, metricTcpV6SegmentsTotal];
 
-var metricsTcpConnCumulative = [metricTcpV4ConnActive, metricTcpV4ConnPassive, metricTcpV6ConnActive, metricTcpV6ConnPassive];
+var metricsTcpConnCumulative = [metricTcpV4ConnActive, metricTcpV4ConnPassive, metricTcpV4ConnFailures, metricTcpV6ConnActive, metricTcpV6ConnPassive, metricTcpV6ConnFailures];
 
 var metricUdpV4DatagramsTotal = "udpv4datagrams";
 var metricUdpV4DatagramsSent = "udpv4datagramssent";
@@ -177,8 +184,10 @@ function metricSerieTitle(metric) {
       serieTitle = "Reset";
       break;
     case metricTcpV4ConnFailures:
+      serieTitle = "TCPv4 Failure";
+      break;
     case metricTcpV6ConnFailures:
-      serieTitle = "Failure";
+      serieTitle = "TCPv6 Failure";
       break;
     case metricTcpV4ConnActive:
       serieTitle = "TCPv4 Active";
@@ -714,6 +723,46 @@ var fillSummary = function fillSummary(data) {
       trs.push(tr.join(''));
     });
     $('#containerSummary #processes').html(trs.join(''));
+
+    //Ports TCP
+    trs = [];
+    $.each(data.portsTcp, function(idx, itm) {
+      var tr = [
+        '<tr>',
+        '  <td>' + itm.name + '</td>',
+        '  <td class="text-center">' + itm.port + '</td>',
+        '  <td>' + (typeof(itm.process) !== 'undefined' ? itm.process : '') + '</td>',
+        '</tr>'
+      ];
+      trs.push(tr.join(''));
+    });
+    $('#containerSummary #portsTcp').html(trs.join(''));
+
+    //Ports UDP
+    trs = [];
+    $.each(data.portsUdp, function(idx, itm) {
+      var tr = [
+        '<tr>',
+        '  <td>' + itm.name + '</td>',
+        '  <td class="text-center">' + itm.port + '</td>',
+        '  <td>' + (typeof(itm.process) !== 'undefined' ? itm.process : '') + '</td>',
+        '</tr>'
+      ];
+      trs.push(tr.join(''));
+    });
+    $('#containerSummary #portsUdp').html(trs.join(''));
+
+    //Services Running
+    trs = [];
+    $.each(data.services, function(idx, itm) {
+      var tr = [
+        '<tr>',
+        '  <td>' + itm + '</td>',
+        '</tr>'
+      ];
+      trs.push(tr.join(''));
+    });
+    $('#containerSummary #servicesRunning').html(trs.join(''));
 
   } catch (e) {
     console.error(e);
