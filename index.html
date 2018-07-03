@@ -10,6 +10,8 @@
     <title>JoK.fr NetSysInfo Dashboard</title>
     <!-- Bootstrap core CSS -->
     <link href="css/bootstrap.css" rel="stylesheet">
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" type="text/css" media="all"  href="css/datatables.css">
     <!-- DateRangePicker CSS -->
     <link rel="stylesheet" type="text/css" media="all" href="css/daterangepicker.css" />
     <!-- FontAwesome CSS -->
@@ -101,6 +103,10 @@
                                         <tr>
                                             <td>Os Informations</td>
                                             <td><span id="osPlatform"></span> <span id="osVersion"></span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>NetSysInfo Version</td>
+                                            <td id="netsysinfoVersion"></td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -339,6 +345,73 @@
                     </div>
                 </div>
             </div>
+            <div class="row summary">
+                <div class="col-md-4 mt-3">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white">
+                            Ports TCP
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table id="tablePortsTcp" class="table table-sm table-striped m-0">
+                                    <thead>
+                                        <tr>
+                                            <th><i data-toggle="tooltip" class="fa fa-xs fa-info-circle tooltipinfo" data-html="true" title="<ul><li><strong class='green'>Green</strong>: Monitored port found</li><li><strong class='red'>Red</strong>: Monitored port not found</li><li><strong class='gray'>Gray</strong>: port not monitored</li></ul>"></i></th>
+                                            <th>Name</th>
+                                            <th class="text-center">Port</th>
+                                            <th>Process</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="portsTcp"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mt-3">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white">
+                            Ports UDP
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table id="tablePortsUdp" class="table table-sm table-striped m-0">
+                                    <thead>
+                                        <tr>
+                                            <th><i data-toggle="tooltip" class="fa fa-xs fa-info-circle tooltipinfo" data-html="true" title="<ul><li><strong class='green'>Green</strong>: Monitored port found</li><li><strong class='red'>Red</strong>: Monitored port not found</li><li><strong class='gray'>Gray</strong>: port not monitored</li></ul>"></i></th>
+                                            <th>Name</th>
+                                            <th class="text-center">Port</th>
+                                            <th>Process</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="portsUdp"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mt-3">
+                    <div class="card">
+                        <div class="card-header bg-dark text-white">
+                            Services Running
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table id="tableServices" class="table table-sm table-striped m-0">
+                                    <thead>
+                                        <tr>
+                                            <th><i data-toggle="tooltip" class="fa fa-xs fa-info-circle tooltipinfo" data-html="true" title="<ul><li><strong class='green'>Green</strong>: Monitored service found</li><li><strong class='red'>Red</strong>: Monitored service not found</li><li><strong class='gray'>Gray</strong>: service not monitored</li></ul>"></i></th>
+                                            <th>Name</th>
+                                            <th>Service</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="services"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         <div id="containerSystem" class="containernsi d-none">
             <div class="row system">
@@ -419,22 +492,22 @@
                 <div class="col-md-6 mt-3">
                     <div class="card">
                         <div class="card-header bg-dark text-white">
-                            Physical Disk Operations
-                            <i data-toggle="tooltip" class="fa fa-info-circle m-1 right tooltipinfo" data-html="true" title="<ul><li><strong>Disk Reads/sec</strong> is the rate of read operations on the disk.</li><li><strong>Disk Writes/sec</strong> is the rate of write operations on the disk.</li><li><strong>Disk Transfers/sec</strong> is the rate of read and write operations on the disk.</li></ul>"></i>
+                            Physical Disk Transfer
+                            <i data-toggle="tooltip" class="fa fa-info-circle m-1 right tooltipinfo" data-html="true" title="<ul><li><strong>Disk Read Bytes/sec</strong> is the rate at which bytes are transferred from the disk during read operations.</li><li><strong>Disk Write Bytes/sec</strong> is rate at which bytes are transferred to the disk during write operations.</li><li><strong>Disk Bytes/sec</strong> is the rate bytes are transferred to or from the disk during write or read operations.</li></ul>"></i>
                         </div>
                         <div class="card-body p-0">
-                            <div id="chartdiskoperations"></div>
+                            <div id="chartdisktransfer"></div>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-6 mt-3">
                     <div class="card">
                         <div class="card-header bg-dark text-white">
-                            Physical Disk Transfer
-                            <i data-toggle="tooltip" class="fa fa-info-circle m-1 right tooltipinfo" data-html="true" title="<ul><li><strong>Disk Read Bytes/sec</strong> is the rate at which bytes are transferred from the disk during read operations.</li><li><strong>Disk Write Bytes/sec</strong> is rate at which bytes are transferred to the disk during write operations.</li><li><strong>Disk Bytes/sec</strong> is the rate bytes are transferred to or from the disk during write or read operations.</li></ul>"></i>
+                            Physical Disk Operations
+                            <i data-toggle="tooltip" class="fa fa-info-circle m-1 right tooltipinfo" data-html="true" title="<ul><li><strong>Disk Reads/sec</strong> is the rate of read operations on the disk.</li><li><strong>Disk Writes/sec</strong> is the rate of write operations on the disk.</li><li><strong>Disk Transfers/sec</strong> is the rate of read and write operations on the disk.</li></ul>"></i>
                         </div>
                         <div class="card-body p-0">
-                            <div id="chartdisktransfer"></div>
+                            <div id="chartdiskoperations"></div>
                         </div>
                     </div>
                 </div>
@@ -516,33 +589,22 @@
         </div>
         <div id="containerProtocol" class="containernsi d-none">
             <div class="row tcp">
-                <div class="col-md-4 mt-3">
+                <div class="col-md-6 mt-3">
                     <div class="card">
                         <div class="card-header bg-dark text-white">
-                            TCPv4 Connections
-                            <i data-toggle="tooltip" class="fa fa-info-circle m-1 right tooltipinfo" data-html="true" title="<ul><li><strong>Connections Established</strong> is the number of TCP connections for which the current state is either ESTABLISHED or CLOSE-WAIT.</li><li><strong>Connections Reset</strong> is the number of times TCP connections have made a direct transition to the CLOSED state from either the ESTABLISHED state or the CLOSE-WAIT state.</li><li><strong>Connection Failures</strong> is the number of times TCP connections have made a direct transition to the CLOSED state from the SYN-SENT state or the SYN-RCVD state, plus the number of times TCP connections have made a direct transition to the LISTEN state from the SYN-RCVD state.</li></ul>"></i>
+                            TCP Connections
+                            <i data-toggle="tooltip" class="fa fa-info-circle m-1 right tooltipinfo" data-html="true" title="<ul><li><strong>Connections Established</strong> is the number of TCP connections for which the current state is either ESTABLISHED or CLOSE-WAIT.</li></ul>"></i>
                         </div>
                         <div class="card-body p-0">
-                            <div id="charttcpv4conn"></div>
+                            <div id="charttcpconn"></div>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-4 mt-3">
-                    <div class="card">
-                        <div class="card-header bg-dark text-white">
-                            TCPv6 Connections
-                            <i data-toggle="tooltip" class="fa fa-info-circle m-1 right tooltipinfo" data-html="true" title="<ul><li><strong>Connections Established</strong> is the number of TCP connections for which the current state is either ESTABLISHED or CLOSE-WAIT.</li><li><strong>Connections Reset</strong> is the number of times TCP connections have made a direct transition to the CLOSED state from either the ESTABLISHED state or the CLOSE-WAIT state.</li><li><strong>Connection Failures</strong> is the number of times TCP connections have made a direct transition to the CLOSED state from the SYN-SENT state or the SYN-RCVD state, plus the number of times TCP connections have made a direct transition to the LISTEN state from the SYN-RCVD state.</li></ul>"></i>
-                        </div>
-                        <div class="card-body p-0">
-                            <div id="charttcpv6conn"></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4 mt-3">
+                <div class="col-md-6 mt-3">
                     <div class="card">
                         <div class="card-header bg-dark text-white">
                             TCP Cumulative Connections
-                            <i data-toggle="tooltip" class="fa fa-info-circle m-1 right tooltipinfo" data-html="true" title="<ul><li><strong>Connections Active</strong> is the number of times TCP connections have made a direct transition to the SYN-SENT state from the CLOSED state. In other words, it shows a number of connections which are initiated by the local computer.</li><li><strong>Connections Passive</strong> is the number of times TCP connections have made a direct transition to the SYN-RCVD state from the LISTEN state. In other words, it shows a number of connections to the local computer, which are initiated by remote computers</li></ul>"></i>
+                            <i data-toggle="tooltip" class="fa fa-info-circle m-1 right tooltipinfo" data-html="true" title="<ul><li><strong>Connections Active</strong> is the number of times TCP connections have made a direct transition to the SYN-SENT state from the CLOSED state. In other words, it shows a number of connections which are initiated by the local computer.</li><li><strong>Connections Passive</strong> is the number of times TCP connections have made a direct transition to the SYN-RCVD state from the LISTEN state. In other words, it shows a number of connections to the local computer, which are initiated by remote computers</li><li><strong>Connections Reset</strong> is the number of times TCP connections have made a direct transition to the CLOSED state from either the ESTABLISHED state or the CLOSE-WAIT state.</li><li><strong>Connection Failures</strong> is the number of times TCP connections have made a direct transition to the CLOSED state from the SYN-SENT state or the SYN-RCVD state, plus the number of times TCP connections have made a direct transition to the LISTEN state from the SYN-RCVD state.</li></ul>"></i>
                         </div>
                         <div class="card-body p-0">
                             <div id="charttcpconncumulative"></div>
@@ -672,13 +734,14 @@
             </div>
         </div>
     </main>
-            <p class="mt-1 mb-1 text-muted text-center" style="font-size:10px;">&copy; JoK.fr 2018</p>
+    <p class="mt-1 mb-1 text-muted text-center" style="font-size:10px;">&copy; JoK.fr 2018</p>
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="js/jquery.js"></script>
     <script src="js/popper.js"></script>
     <script src="js/bootstrap.js"></script>
+    <script src="js/datatables.js"></script>
     <script src="js/moment.js"></script>
     <script src="js/daterangepicker.js"></script>
     <script src="js/highstock.js"></script>

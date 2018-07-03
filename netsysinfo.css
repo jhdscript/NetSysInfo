@@ -1,31 +1,31 @@
-/* Show it is fixed to the top */
-
 body {
     /*min-height: 75rem;*/
     padding-top: 4.5rem;
 }
 
 .form-server {
-  width: 100%;
-  max-width: 400px;
-  padding: 15px;
-  margin: auto;
+    width: 100%;
+    max-width: 400px;
+    padding: 15px;
+    margin: auto;
 }
 
 .form-server .form-control {
-  position: relative;
-  box-sizing: border-box;
-  height: auto;
-  padding: 10px;
-  font-size: 16px;
+    position: relative;
+    box-sizing: border-box;
+    height: auto;
+    padding: 10px;
+    font-size: 16px;
 }
+
 .form-server .form-control:focus {
-  z-index: 2;
+    z-index: 2;
 }
+
 .form-server input[type="text"] {
-  margin-bottom: -1px;
-  border-bottom-right-radius: 0;
-  border-bottom-left-radius: 0;
+    margin-bottom: -1px;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
 }
 
 .width100 {
@@ -56,6 +56,31 @@ body {
     color: darkorange;
 }
 
+.green {
+    color: lime;
+}
+
+.red {
+    color: red;
+}
+
+.gray {
+    color: darkgray;
+}
+
+.trvisible,
+.trmonitor {
+    display: table-row !important;
+}
+
+.trinvisible {
+    display: none;
+}
+
+.monitoritem {
+    cursor: pointer;
+}
+
 .tooltip-inner {
     padding-left: 0;
     padding-right: 0;
@@ -67,4 +92,20 @@ body {
     overflow: auto;
     border: 1px solid silver;
     min-height: 100px;
+}
+
+
+/* Custom DataTables style */
+
+table.dataTable {
+    margin-top: -1px !important;
+}
+
+.dataTables_paginate ul.pagination {
+    justify-content: center !important;
+}
+.thtooltip {
+    width: 25px !important;
+    max-width: 25px !important;
+    min-width: 25px !important;
 }

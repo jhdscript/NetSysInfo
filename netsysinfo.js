@@ -34,7 +34,6 @@ var metricTcpV4SegmentsTotal = "tcpv4segments";
 var metricTcpV4SegmentsSent = "tcpv4segmentssent";
 var metricTcpV4SegmentsReceived = "tcpv4segmentsreceived";
 var metricTcpV4SegmentsRetransmitted = "tcpv4segmentsretransmitted";
-var metricsTcpV4Conn = [metricTcpV4ConnEstablished, metricTcpV4ConnReset];
 var metricsTcpV4Segments = [metricTcpV4SegmentsSent, metricTcpV4SegmentsReceived, metricTcpV4SegmentsRetransmitted, metricTcpV4SegmentsTotal];
 
 var metricTcpV6ConnEstablished = "tcpv6connestablished";
@@ -46,10 +45,10 @@ var metricTcpV6SegmentsTotal = "tcpv6segments";
 var metricTcpV6SegmentsSent = "tcpv6segmentssent";
 var metricTcpV6SegmentsReceived = "tcpv6segmentsreceived";
 var metricTcpV6SegmentsRetransmitted = "tcpv6segmentsretransmitted";
-var metricsTcpV6Conn = [metricTcpV6ConnEstablished, metricTcpV6ConnReset];
 var metricsTcpV6Segments = [metricTcpV6SegmentsSent, metricTcpV6SegmentsReceived, metricTcpV6SegmentsRetransmitted, metricTcpV6SegmentsTotal];
 
-var metricsTcpConnCumulative = [metricTcpV4ConnActive, metricTcpV4ConnPassive, metricTcpV4ConnFailures, metricTcpV6ConnActive, metricTcpV6ConnPassive, metricTcpV6ConnFailures];
+var metricsTcpConn = [metricTcpV4ConnEstablished, metricTcpV6ConnEstablished];
+var metricsTcpConnCumulative = [metricTcpV4ConnActive, metricTcpV4ConnPassive, metricTcpV6ConnReset, metricTcpV4ConnFailures, metricTcpV6ConnActive, metricTcpV6ConnPassive, metricTcpV4ConnReset, metricTcpV6ConnFailures];
 
 var metricUdpV4DatagramsTotal = "udpv4datagrams";
 var metricUdpV4DatagramsSent = "udpv4datagramssent";
@@ -83,7 +82,7 @@ var metricsIcmpV6Msg = [metricIcmpV6MsgSent, metricIcmpV6MsgReceived, metricIcmp
 
 var metricsIcmpErrors = [metricIcmpV4MsgOutboundErrors, metricIcmpV4MsgReceivedErrors, metricIcmpV6MsgOutboundErrors, metricIcmpV6MsgReceivedErrors];
 
-var metricsProtocol = metricsTcpV4Conn.concat(metricsTcpV4Segments).concat(metricsTcpV6Conn).concat(metricsTcpConnCumulative).concat(metricsTcpV6Segments);
+var metricsProtocol = metricsTcpConn.concat(metricsTcpV4Segments).concat(metricsTcpConnCumulative).concat(metricsTcpV6Segments);
 metricsProtocol = metricsProtocol.concat(metricsUdpV4).concat(metricsUdpV6).concat(metricUdpDatagramsReceivedErrors);
 metricsProtocol = metricsProtocol.concat(metricsIcmpV4Msg).concat(metricsIcmpV6Msg).concat(metricsIcmpErrors);
 
@@ -176,12 +175,16 @@ function metricSerieTitle(metric) {
       serieTitle = "Threads";
       break;
     case metricTcpV4ConnEstablished:
+      serieTitle = "TCPv4 Established";
+      break;
     case metricTcpV6ConnEstablished:
-      serieTitle = "Established";
+      serieTitle = "TCPv6 Established";
       break;
     case metricTcpV4ConnReset:
+      serieTitle = "TCPv4 Reset";
+      break;
     case metricTcpV6ConnReset:
-      serieTitle = "Reset";
+      serieTitle = "TCPv6 Reset";
       break;
     case metricTcpV4ConnFailures:
       serieTitle = "TCPv4 Failure";
@@ -428,7 +431,7 @@ function hideError() {
 }
 
 /*****************************
- * CALENDAR / TOOLTIP        *
+ * CALENDAR                  *
  ****************************/
 var calendarFrom = moment().startOf('minute').subtract(30, 'minute').milliseconds(0);
 var calendarTo = moment().seconds(0).milliseconds(0);
@@ -479,7 +482,32 @@ function calendarInit() {
 
 //Calendar and Tooltips initialisation
 calendarInit();
+
+
+/*****************************
+ * TOOLTIP / DATATABLES      *
+ ****************************/
 $('[data-toggle="tooltip"]').tooltip();
+var dtOpts = {
+  "searching": false,
+  "bLengthChange": false,
+  "bInfo": false,
+  "dom": '<<"col-sm-4"f>>tip' //TODO
+};
+var dtOptsPorts = $.extend(true, dtOpts, {
+  "columnDefs": [{
+    "targets": [0],
+    "className": "thtooltip",
+    "type": "html"
+  }, {
+    "targets": [2],
+    "className": "text-center"
+  }]
+});
+
+var $dtPortsTcp = $('#tablePortsTcp').DataTable(dtOptsPorts);
+var $dtPortsUdp = $('#tablePortsUdp').DataTable(dtOptsPorts);
+var $dtServices = $('#tableServices').DataTable(dtOptsPorts);
 
 /*****************************
  * HIGHCHARTS                *
@@ -615,7 +643,7 @@ var fillSummary = function fillSummary(data) {
 
     //Informations and Locales
     $('#serverName').html((data.computerAlias || data.computerName || "SERVER").toUpperCase());
-    var props = ['computerName', 'computerAlias', 'hostName', 'ipLocal', 'osFullName', 'osPlatform', 'osVersion', 'timeBoot', 'timeGmt', 'timeLocal', 'timeUpdate', 'uiCulture', 'uptime'];
+    var props = ['computerName', 'netsysinfoVersion', 'computerAlias', 'hostName', 'ipLocal', 'osFullName', 'osPlatform', 'osVersion', 'timeBoot', 'timeGmt', 'timeLocal', 'timeUpdate', 'uiCulture', 'uptime'];
     for (i = 0; i < props.length; i++) {
       var prop = props[i];
       if (!data[prop]) {
@@ -724,45 +752,92 @@ var fillSummary = function fillSummary(data) {
     });
     $('#containerSummary #processes').html(trs.join(''));
 
+    var fillPortsTable = function fillPortsTable($datatable, data, ls, lsname) {
+      var found = {};
+      trs = [];
+      $.each(data, function(idx, itm) {
+        var monitorClass = 'fa-plus-circle';
+        var process = (typeof(itm.process) !== 'undefined' ? itm.process : '');
+        var port = itm.port;
+        var name = itm.name;
+        var classes = 'fa-plus-circle gray';
+        var sort = '2';
+        if (ls[port]) {
+          name = ls[port] || name;
+          classes = 'fa-minus-circle green';
+          found[port] = true;
+          sort = '1';
+        }
+        var tr = [
+          '<span class="d-none sort">' + sort + '</span><i class="monitoritem fa fa-xs ' + classes + '" data-localstorage="' + lsname + '" data-value="' + port + '" data-name="' + name + '"></i>',
+          name,
+          port,
+          process
+        ];
+        trs.push(tr);
+      });
+      for (var p in ls) {
+        if (found[p]) {
+          continue;
+        }
+        var name = ls[p] || '';
+        var sort = '0';
+        var tr = [
+          '<span class="d-none sort">' + sort + '</span><i class="monitoritem fa fa-xs fa-minus-circle red" data-localstorage="' + lsname + '" data-value="' + p + '" data-name="' + name + '"></i>',
+          name,
+          p,
+          ''
+        ];
+        trs.push(tr);
+      }
+      $datatable.rows.add(trs).draw();
+    };
+
+    var fillService = function fillService($datatable, data, ls, lsname) {
+      var found = {};
+      trs = [];
+      $.each(data, function(idx, itm) {
+        var monitorClass = 'fa-plus-circle';
+        var name = itm.service;
+        var classes = 'fa-plus-circle gray';
+        var sort = '2';
+        if (ls[name]) {
+          name = ls[name] || name;
+          classes = 'fa-minus-circle green';
+          found[name] = true;
+          sort = '1';
+        }
+        var tr = [
+          '<span class="d-none sort">' + sort + '</span><i class="monitoritem fa fa-xs ' + classes + '" data-localstorage="' + lsname + '" data-value="' + itm.service + '" data-name="' + itm.service + '"></i>',
+          itm.name + '</td>',
+          name,
+        ];
+        trs.push(tr);
+      });
+      for (var p in ls) {
+        if (found[p]) {
+          continue;
+        }
+        var name = ls[p] || '';
+        var sort = '0';
+        var tr = [
+          '<span class="d-none sort">' + sort + '</span><i class="monitoritem fa fa-xs fa-minus-circle red" data-localstorage="' + lsname + '" data-value="' + lsname + '" data-name="' + lsname + '"></i>',
+          name,
+          name
+        ];
+        trs.push(tr);
+      }
+      $datatable.rows.add(trs).draw();
+    };
+
     //Ports TCP
-    trs = [];
-    $.each(data.portsTcp, function(idx, itm) {
-      var tr = [
-        '<tr>',
-        '  <td>' + itm.name + '</td>',
-        '  <td class="text-center">' + itm.port + '</td>',
-        '  <td>' + (typeof(itm.process) !== 'undefined' ? itm.process : '') + '</td>',
-        '</tr>'
-      ];
-      trs.push(tr.join(''));
-    });
-    $('#containerSummary #portsTcp').html(trs.join(''));
+    fillPortsTable($dtPortsTcp, data.portsTcp, localStorageObj.portsTcp, 'portsTcp');
 
     //Ports UDP
-    trs = [];
-    $.each(data.portsUdp, function(idx, itm) {
-      var tr = [
-        '<tr>',
-        '  <td>' + itm.name + '</td>',
-        '  <td class="text-center">' + itm.port + '</td>',
-        '  <td>' + (typeof(itm.process) !== 'undefined' ? itm.process : '') + '</td>',
-        '</tr>'
-      ];
-      trs.push(tr.join(''));
-    });
-    $('#containerSummary #portsUdp').html(trs.join(''));
+    fillPortsTable($dtPortsUdp, data.portsUdp, localStorageObj.portsUdp, 'portsUdp');
 
     //Services Running
-    trs = [];
-    $.each(data.services, function(idx, itm) {
-      var tr = [
-        '<tr>',
-        '  <td>' + itm + '</td>',
-        '</tr>'
-      ];
-      trs.push(tr.join(''));
-    });
-    $('#containerSummary #servicesRunning').html(trs.join(''));
+    fillService($dtServices, data.services, localStorageObj.services, 'services');
 
   } catch (e) {
     console.error(e);
@@ -921,10 +996,6 @@ var fillProtocol = function fillProtocol(data) {
   var yMax = null;
   var series = [];
   for (var j = 0; j < 2; j++) {
-    //TCP Connections
-    series = getTimeSeries(data, (j === 0 ? metricsTcpV4Conn : metricsTcpV6Conn), aggMax);
-    chartTime((j === 0 ? "charttcpv4conn" : "charttcpv6conn"), (j === 0 ? "TCPv4" : "TCPv6") + " Connections", yMin, yMax, series);
-
     //TCP Segments
     series = getTimeSeries(data, (j === 0 ? metricsTcpV4Segments : metricsTcpV6Segments), aggMax);
     chartTime((j === 0 ? "charttcpv4segments" : "charttcpv6segments"), (j === 0 ? "TCPv4" : "TCPv6") + " Max Segments/sec", yMin, yMax, series);
@@ -937,6 +1008,10 @@ var fillProtocol = function fillProtocol(data) {
     series = getTimeSeries(data, (j === 0 ? metricsIcmpV4Msg : metricsIcmpV4Msg), aggMax);
     chartTime((j === 0 ? "charticmpv4messages" : "charticmpv6messages"), (j === 0 ? "ICMPv4" : "ICMPv6") + " Max Messages/sec", yMin, yMax, series);
   }
+
+  //TCP Connections
+  series = getTimeSeries(data, metricsTcpConn, aggMax);
+  chartTime("charttcpconn", "TCP Connections", yMin, yMax, series);
 
   //TCP Cumulative Connections
   series = getTimeSeries(data, metricsTcpConnCumulative, aggMax);
@@ -1004,6 +1079,75 @@ var fillNetwork = function fillNetwork(data) {
 };
 
 /*****************************
+ * LOCALSTORAGE              *
+ ****************************/
+var localStorageKey = "netsysinfo";
+
+//Object stored in localStorage which have some local user settings
+var localStorageObj = {
+  "portsTcp": {}, //tcp ports to monitor (same as tbody id)
+  "portsUdp": {}, //udp ports to monitor (same as tbody id)
+  "services": {} //services to monitor (same as tbody id)
+};
+
+//Function to load localStorageObj from LocalStorage
+function localStorageLoad() {
+  try {
+    if (typeof(Storage) === 'undefined') {
+      return false;
+    }
+    var tmp = localStorage.getItem(localStorageKey);
+    if (tmp) {
+      localStorageObj = JSON.parse(tmp);
+    }
+    //Checkboxes
+    for (var p in localStorageObj.checkboxes) {
+      if (localStorageObj.checkboxes[p] === true) {
+        $('#' + p).trigger("click");
+      }
+    }
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+//Function to save localStorageObj to LocalStorage
+function localStorageSave() {
+  try {
+    if (typeof(Storage) === 'undefined') {
+      return false;
+    }
+    localStorage.setItem(localStorageKey, JSON.stringify(localStorageObj));
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+/*****************************
+ * IHM INTERACTION           *
+ ****************************/
+//Click on monitoritem for add/delete monitoring
+$('#containerSummary').on('click', '.monitoritem', function() {
+  var $this = $(this);
+  //var tbody = $this.parents('tbody').attr('id');
+  var ls = $this.attr("data-localstorage");
+  var value = $this.attr("data-value");
+  var name = $this.attr("data-name");
+  var $td = $this.parents('td');
+
+  if ($this.hasClass('fa-plus-circle')) { //add
+    $this.removeClass('fa-plus-circle green red gray').addClass('fa-minus-circle green');
+    localStorageObj[ls][value] = name;
+  } else { //remove
+    $this.removeClass('fa-minus-circle green red gray').addClass('fa-plus-circle gray');
+    delete localStorageObj[ls][value];
+  }
+
+  localStorageSave();
+});
+
+
+/*****************************
  * STARTER                   *
  ****************************/
 
@@ -1017,6 +1161,7 @@ if (window.location.search && window.location.search.length === 40) {
 }
 
 if (server) {
+  localStorageLoad();
   $('#menu').removeClass("d-none");
   $('#main').removeClass("d-none");
   $('#menuSummary').trigger('click');
